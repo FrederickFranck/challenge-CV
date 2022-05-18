@@ -12,10 +12,10 @@ datapath = pathlib.Path(__file__).parent / f"../{config['files']['csv']}"
 
 df = prepare(datapath)
 print(df)
-super_list = class_images(df)
-X, y = load_images(super_list)
+_dict, _tags = class_images(df)
+load_images(_dict, _tags)
 
-
+"""
 X_train_val, X_test, y_train_val, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, shuffle=True
 )
@@ -51,3 +51,28 @@ model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accur
 print("CONSTRUCTING MODEL ...")
 history = model.fit(train_generator, epochs=10, batch_size=500, validation_data=validation_generator)
 
+import tensorflow as tf
+from matplotlib import pyplot as plt
+
+def plot_history(history):
+    
+    #This helper function takes the tensorflow.python.keras.callbacks.History
+    #that is output from your `fit` method to plot the loss and accuracy of
+    #the training and validation set.
+    
+    fig, axs = plt.subplots(1,2, figsize=(12,6))
+    axs[0].plot(history.history['accuracy'], label='training set')
+    axs[0].plot(history.history['val_accuracy'], label = 'validation set')
+    axs[0].set(xlabel = 'Epoch', ylabel='Accuracy', ylim=[0, .8])
+
+    axs[1].plot(history.history['loss'], label='training set')
+    axs[1].plot(history.history['val_loss'], label = 'validation set')
+    axs[1].set(xlabel = 'Epoch', ylabel='Loss', ylim=[0, 11])
+    
+    axs[0].legend(loc='lower right')
+    axs[1].legend(loc='upper right')
+    
+    plt.savefig('Graph.png')
+    
+plot_history(history)
+"""

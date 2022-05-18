@@ -1,4 +1,5 @@
 from tokenize import String
+from typing import Dict
 import toml
 import pathlib
 import pandas as pd
@@ -11,8 +12,6 @@ IMAGE_SIZE = (224, 224)
 
 #Read csv path
 config = toml.load(pathlib.Path(__file__).parent / "../config/config.toml")
-datapath = pathlib.Path(__file__).parent / f"../../{config['files']['csv']}"
-
 
 def prepare(datapath: String) -> pd.DataFrame:
     # Load Dataframe
@@ -27,27 +26,13 @@ def prepare(datapath: String) -> pd.DataFrame:
     return dataframe
 
 # Put all image names in their corresponding classification list
-def class_images(df: pd.DataFrame) -> list:
+def class_images(df: pd.DataFrame) -> Dict:
 
     # Get classifications
     tags = df.dx.unique().tolist()
 
-    bkl_ids = []
-    nv_ids = []
-    df_ids = []
-    mel_ids = []
-    vasc_ids = []
-    bcc_ids = []
-    akiec_ids = []
-
-    super_list = [bkl_ids, nv_ids, df_ids, mel_ids, vasc_ids, bcc_ids, akiec_ids]
-
-    for i in range(len(tags)):
-        super_list[i] = df[df["dx"] == tags[i]][
-            "image_id"
-        ].values.tolist()
-
-    return super_list
+    _dict = df.set_index('image_id').to_dict()['dx']
+    return _dict, tags
 
 
 # Preprocess single image
@@ -66,7 +51,7 @@ def get_preprocessed_images(images_ids: list) -> np.ndarray:
     dir1 = config["files"]["dir1"]
     dir2 = config["files"]["dir2"]
     ext = ".jpg"
-
+    
     # Try to find the images in the first directory, if that doesnt work try the second directory
     for _id in images_ids:
         try:
@@ -76,15 +61,34 @@ def get_preprocessed_images(images_ids: list) -> np.ndarray:
                 # continue
                 images.append(preprocess(dir2 + _id + ext))
             except:
-                print(dir1 + _id)
-                print(dir2 + _id)
+                print(dir1 + _id + ext)
+                print(dir2 + _id + ext)
                 print("Something seriously went wrong")
 
-    return np.vstack(images)
+    image_stack =  np.vstack(images)
+    print(image_stack.shape)
+    return image_stack
 
 
-def load_images(super_list):
+def load_images(tagged_dict,tags):
+    
+    _dir = "data/HAM10000_images/"
+    ext = ".jpg"
 
+    all_images = []
+
+    for tag in tags:
+        images = []
+        for key, value in tagged_dict.items():
+            if value == tag:
+            #load image
+                images.append(preprocess(_dir + key + ext))
+
+    all_images.append(images)
+    
+    print(all_images)
+
+    """
     # Load your images and preprocess them.
     bkl_images = get_preprocessed_images(super_list[0])
     nv_images = get_preprocessed_images(super_list[1])
@@ -103,10 +107,8 @@ def load_images(super_list):
     bcc_labels = np.tile([0, 0, 0, 0, 0, 1, 0], (bcc_images.shape[0], 1))
     akiec_labels = np.tile([0, 0, 0, 0, 0, 0, 1], (akiec_images.shape[0], 1))
 
-    """TODO
-    UPSCALING/DOWNSCALING HERE
-    """
-    
+    #TODO
+    #UPSCALING/DOWNSCALING    
     
     X = np.concatenate(
         [
@@ -133,3 +135,5 @@ def load_images(super_list):
     )
 
     return (X, y)
+    """
+    return
