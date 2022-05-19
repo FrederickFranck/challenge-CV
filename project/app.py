@@ -13,7 +13,7 @@ datapath = pathlib.Path(__file__).parent / f"../{config['files']['csv']}"
 df = prepare(datapath)
 _dict, _tags = class_images(df)
 print("STARTED LOADING ...")
-X, y = load_images(_dict, _tags)
+X, y = load_images(_dict)
 
 
 X_train_val, X_test, y_train_val, y_test = train_test_split(
