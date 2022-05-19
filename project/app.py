@@ -11,11 +11,11 @@ config = toml.load(pathlib.Path(__file__).parent / "config/config.toml")
 datapath = pathlib.Path(__file__).parent / f"../{config['files']['csv']}"
 
 df = prepare(datapath)
-print(df)
 _dict, _tags = class_images(df)
-load_images(_dict, _tags)
+print("STARTED LOADING ...")
+X, y = load_images(_dict, _tags)
 
-"""
+
 X_train_val, X_test, y_train_val, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, shuffle=True
 )
@@ -74,5 +74,3 @@ def plot_history(history):
     
     plt.savefig('Graph.png')
     
-plot_history(history)
-"""
