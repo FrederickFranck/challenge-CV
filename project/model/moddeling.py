@@ -22,6 +22,6 @@ def create_model() -> Sequential:
     new_model.add(Flatten())
     new_model.add(Dense(64, activation="relu"))
     new_model.add(Dropout(0.5))
-    new_model.add(Dense(7, activation="sigmoid"))
+    new_model.add(Dense(7, activation="softmax"))
 
     return new_model

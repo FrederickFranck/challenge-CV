@@ -54,11 +54,11 @@ def main():
     print(f"LOADING FINISHED time : {(end - start)}")
 
     #Split data in train
-    train_gen, val_gen = split_data(X, y)
+    train_gen, val_gen, X_test, y_test = split_data(X, y)
 
     model_create_and_train(train_gen, val_gen)
 
-    load_model()
+    load_model(X_test, y_test)
 
 
 def split_data(X, y):
@@ -92,7 +92,7 @@ def split_data(X, y):
     end = datetime.datetime.now()
     print(f"SPLITING DONE time : {(end - start)}")
 
-    return train_generator, validation_generator
+    return train_generator, validation_generator , X_test, y_test
 
 
 def model_create_and_train(train_generator, validation_generator):
@@ -120,12 +120,19 @@ def model_create_and_train(train_generator, validation_generator):
     model.save(pathlib.Path(__file__).parent / "model/model")
 
 
-def load_model():
+def load_model(X_test,y_test):
     print("STARTED LOADING ...")
     model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model")
     print(model.summary())
+    
+    y_pred = (model.predict(X_test))
+    
+    print(y_pred)
+    print(y_test)
+    end = datetime.datetime.now()
+    print(f"Execution time : {(end - start)}")
 
 
 if __name__ == "__main__":
-    #main()
-    load_model()
+    main()
+    #load_model()
