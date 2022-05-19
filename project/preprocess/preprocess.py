@@ -10,10 +10,12 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 
+
 IMAGE_SIZE = (224, 224)
 
-#Read csv path
+# Read csv path
 config = toml.load(pathlib.Path(__file__).parent / "../config/config.toml")
+
 
 def prepare(datapath: String) -> pd.DataFrame:
     # Load Dataframe
@@ -27,16 +29,14 @@ def prepare(datapath: String) -> pd.DataFrame:
 
     return dataframe
 
+
 # Put all image names in their corresponding classification list
 def class_images(df: pd.DataFrame) -> Dict:
 
-    # Get classifications
-    tags = df.dx.unique().tolist()
+    #Create library of image ids
+    _dict = df.set_index("image_id").to_dict()["dx"]
 
-    _dict = df.set_index('image_id').to_dict()['dx']
-    print(len(_dict))
-    print(tags)
-    return _dict, tags
+    return _dict
 
 
 # Preprocess single image
@@ -50,7 +50,7 @@ def preprocess(img_path: String) -> np.ndarray:
 
 
 def load_images(tagged_dict):
-    
+    print("STARTED LOADING ...")
     _dir = "data/HAM10000_images/"
     ext = ".jpg"
 
@@ -58,19 +58,18 @@ def load_images(tagged_dict):
     categories = []
 
     for key, value in tagged_dict.items():
-        #load image
+        # load image
         all_images.append(preprocess(_dir + key + ext))
         categories.append(value)
-        
-    
+
     label_encoder = LabelEncoder()
     integer_encoded = label_encoder.fit_transform(categories)
 
     onehot_encoder = OneHotEncoder(sparse=False)
     integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
     onehot_encoded = onehot_encoder.fit_transform(integer_encoded)
-    
+
     X = np.vstack(all_images)
     y = onehot_encoded
-    
+
     return X, y
