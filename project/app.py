@@ -1,138 +1,72 @@
-import toml
+import os
 import pathlib
-import datetime
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from matplotlib import pyplot as plt
-from model.moddeling import create_model
-from preprocess.preprocess import class_images, load_images, prepare
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+from PIL import Image
+from tensorflow.keras.preprocessing import image
+from flask import Flask, render_template, request, flash
+from werkzeug.utils import secure_filename
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+import numpy as np
+
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+UPLOAD_FOLDER = pathlib.Path(__file__).parent / "static/uploads"
+CLASSES = ['nv', 'bkl', 'mel', 'akiec', 'bcc', 'df', 'vasc']
 
 
-# Used to calculate Execution Time
-# Latest Execution Time : 0:14:47.747620
-start = datetime.datetime.now()
+model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model")
 
+# Create app & routes
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-def plot_history(history):
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-    # This helper function takes the tensorflow.python.keras.callbacks.History
-    # that is output from your `fit` method to plot the loss and accuracy of
-    # the training and validation set.
+# Default API route
+@app.route("/", methods=["GET","POST"])
+def route_api():
+    if request.method == "GET":
+        
+        return render_template("index.html")
 
-    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
-    axs[0].plot(history.history["accuracy"], label="training set")
-    axs[0].plot(history.history["val_accuracy"], label="validation set")
-    axs[0].set(xlabel="Epoch", ylabel="Accuracy", ylim=[0, 0.8])
+    if request.method == "POST":
+        if 'file' not in request.files:
+            flash("No image uploaded")
+            return render_template("index.html")
+        
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file')
+            return render_template("index.html")
 
-    axs[1].plot(history.history["loss"], label="training set")
-    axs[1].plot(history.history["val_loss"], label="validation set")
-    axs[1].set(xlabel="Epoch", ylabel="Loss", ylim=[0, 11])
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            path = os.path.join(app.config['UPLOAD_FOLDER'] / filename)
+            print(f"path = {path}")
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            
+            
+            #img = Image.open(file)
+            _img = image.load_img(path, target_size=(224,224))
+            
+            img = image.img_to_array(_img)
+            img = img.reshape((1, img.shape[0], img.shape[1], img.shape[2]))
+            img = preprocess_input(img)
 
-    axs[0].legend(loc="lower right")
-    axs[1].legend(loc="upper right")
+            pred = model.predict(img)
+            print(f"{type(pred)} : {pred}")
+            p = np.round(pred,2)
+            print(f"{type(p)} : {p}")
+            
 
-    plt.savefig("Graph.png")
-
-
-def main():
-    # Read csv path
-    config = toml.load(pathlib.Path(__file__).parent / "config/config.toml")
-    datapath = pathlib.Path(__file__).parent / f"../{config['files']['csv']}"
-
-    #Prep data
-    df = prepare(datapath)
-    _dict = class_images(df)
-    
-    #Load images
-    
-    X, y = load_images(_dict)
-
-    # Calculate Execution Time
-    end = datetime.datetime.now()
-    print(f"LOADING FINISHED time : {(end - start)}")
-
-    #Split data in train
-    train_gen, val_gen, X_test, y_test = split_data(X, y)
-
-    model_create_and_train(train_gen, val_gen)
-
-    load_model(X_test, y_test)
-
-
-def split_data(X, y):
-    print("DATA SPLITING ...")
-    X_train_val, X_test, y_train_val, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=58, shuffle=True
-    )
-
-    X_train, X_val, y_train, y_val = train_test_split(
-        X_train_val, y_train_val, test_size=0.2, random_state=58, shuffle=True
-    )
-
-    # Determine the number of generated samples you want per original sample.
-    datagen_batch_size = 16
-
-    # Make a datagenerator object using ImageDataGenerator.
-    train_datagen = ImageDataGenerator(rotation_range=60, horizontal_flip=True)
-
-    # Feed the generator your train data.
-    train_generator = train_datagen.flow(
-        X_train, y_train, batch_size=datagen_batch_size
-    )
-
-    # Make a datagenerator object using ImageDataGenerator.
-    validation_datagen = ImageDataGenerator(rotation_range=60, horizontal_flip=True)
-
-    # Feed the generator your validation data.
-    validation_generator = validation_datagen.flow(
-        X_val, y_val, batch_size=datagen_batch_size
-    )
-    end = datetime.datetime.now()
-    print(f"SPLITING DONE time : {(end - start)}")
-
-    return train_generator, validation_generator , X_test, y_test
-
-
-def model_create_and_train(train_generator, validation_generator):
-    print("CONSTRUCTING MODEL ...")
-    model = create_model()
-
-    # Compile and fit the model.
-    # Use the validation data argument during fitting to include your validation data.
-
-    model.compile(
-        optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"]
-    )
-    history = model.fit(
-        train_generator, epochs=10, batch_size=500, validation_data=validation_generator
-    )
-    end = datetime.datetime.now()
-    print(f"MODEL FINISHED time : {(end - start)}")
-
-    plot_history(history)
-
-    # Calculate Execution Time
-    end = datetime.datetime.now()
-    print(f"Execution time : {(end - start)}")
-
-    model.save(pathlib.Path(__file__).parent / "model/model")
-
-
-def load_model(X_test,y_test):
-    print("STARTED LOADING ...")
-    model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model")
-    print(model.summary())
-    
-    y_pred = (model.predict(X_test))
-    
-    print(y_pred)
-    print(y_test)
-    end = datetime.datetime.now()
-    print(f"Execution time : {(end - start)}")
+        return render_template("index.html",user_image=f"uploads/{filename}",predictions=p[0],classes=CLASSES)
 
 
 if __name__ == "__main__":
-    main()
-    #load_model()
+    # You want to put the value of the env variable PORT if it exist (some services only open specifiques ports)
+    port = int(os.environ.get("PORT", 5000))
+    # Threaded option to enable multiple instances for
+    # multiple user access support
+    # You will also define the host to "0.0.0.0" because localhost will only be reachable from inside de server.
+    app.run(host="0.0.0.0", threaded=True, port=port, debug=True)
