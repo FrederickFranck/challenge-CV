@@ -13,7 +13,7 @@ UPLOAD_FOLDER = pathlib.Path(__file__).parent / "static/uploads"
 CLASSES = ['nv', 'bkl', 'mel', 'akiec', 'bcc', 'df', 'vasc']
 
 
-model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model")
+model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model_h.h5")
 
 # Create app & routes
 app = Flask(__name__)

@@ -118,6 +118,7 @@ def model_create_and_train(train_generator, validation_generator):
     print(f"Execution time : {(end - start)}")
 
     model.save(pathlib.Path(__file__).parent / "model/model")
+    model.save(pathlib.Path(__file__).parent / "model/model_h.h5")
 
 
 def load_model(X_test,y_test):
@@ -125,10 +126,9 @@ def load_model(X_test,y_test):
     model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model")
     print(model.summary())
     
-    y_pred = (model.predict(X_test))
+    new_model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model_h.h5")
+    print(new_model.summary())
     
-    print(y_pred)
-    print(y_test)
     end = datetime.datetime.now()
     print(f"Execution time : {(end - start)}")
 
