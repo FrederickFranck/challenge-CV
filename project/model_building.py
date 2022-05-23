@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from model.moddeling import create_model
 from preprocess.preprocess import class_images, load_images, prepare
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
+
 
 
 # Used to calculate Execution Time
@@ -39,8 +39,8 @@ def plot_history(history):
 def main():
     # Read csv path
     config = toml.load(pathlib.Path(__file__).parent / "config/config.toml")
-    datapath = pathlib.Path(__file__).parent / f"../{config['files']['csv']}"
-
+    datapath = pathlib.Path(__file__).parent / f"{config['files']['csv']}"
+    print(datapath)
     #Prep data
     df = prepare(datapath)
     _dict = class_images(df)

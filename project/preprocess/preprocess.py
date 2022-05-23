@@ -51,7 +51,7 @@ def preprocess(img_path: String) -> np.ndarray:
 
 def load_images(tagged_dict):
     print("STARTED LOADING ...")
-    _dir = "data/HAM10000_images/"
+    _dir = pathlib.Path(__file__).parent / f"../{config['files']['dir']}"
     ext = ".jpg"
 
     all_images = []
@@ -59,7 +59,7 @@ def load_images(tagged_dict):
 
     for key, value in tagged_dict.items():
         # load image
-        all_images.append(preprocess(_dir + key + ext))
+        all_images.append(preprocess(_dir / (key + ext)))
         categories.append(value)
 
     label_encoder = LabelEncoder()

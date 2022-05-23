@@ -1,5 +1,5 @@
 [files]
 
 csv = "data/HAM10000_metadata.csv"
-dir1 = "data/HAM10000_images"
+dir = "data/HAM10000_images"
 
