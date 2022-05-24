@@ -1,0 +1,10 @@
+
+#BUILD DOCKER
+docker build . -t mole-doctor
+docker run -d -p 5000:5000 mole-doctor
+
+#DEPLOY TO HEROKU
+sudo heroku login
+sudo heroku container:login
+sudo heroku container:push web -a mole-doctor
+sudo heroku container:release web -a mole-doctor

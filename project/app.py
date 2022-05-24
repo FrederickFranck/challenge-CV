@@ -1,11 +1,12 @@
 import os
 import pathlib
-import tensorflow as tf
+#import tensorflow as tf
+from keras.models import load_model
+from keras.preprocessing import image
+from keras.applications.mobilenet_v2 import preprocess_input
 from PIL import Image
-from tensorflow.keras.preprocessing import image
 from flask import Flask, render_template, request, flash
 from werkzeug.utils import secure_filename
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 import numpy as np
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
@@ -13,7 +14,7 @@ UPLOAD_FOLDER = pathlib.Path(__file__).parent / "static/uploads"
 CLASSES = ['nv', 'bkl', 'mel', 'akiec', 'bcc', 'df', 'vasc']
 
 
-model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model_h.h5")
+model = load_model(pathlib.Path(__file__).parent / "model/model_h.h5")
 
 # Create app & routes
 app = Flask(__name__)

@@ -6,13 +6,14 @@
 <section class="content">
     <header>
 
-        <h1>Welcome to the mole doctor</h1>
+        <h1>Welcome to the mole doctor<sup>*</sup></h1>
+        <h3><sup>*</sup>(not a real doctor)</h3>
         <img src="{{ url_for('static', filename='mole.png') }}" />
     </header>
 
     <form id="image_form" action="" enctype="multipart/form-data" method="POST">
         <div>
-            <p>Upload Packages:</p>
+            <p>Upload Picture:</p>
             <p><input id="upload_button" type="file" name="file"></p>
             <p><input id="submit_button" type="submit" value="Upload">
         </div>
@@ -45,7 +46,7 @@
             Franck</a>
     </h2>
     <h2>
-        How its made &nbsp;<a href="https://github.com/FrederickFranck/challenge-deployment" target="_blank"><img width="35" height="35" src="{{ url_for('static', filename='github_logo_b.png') }}" alt="github_logo"></a>
+        How it's made &nbsp;<a href="https://github.com/FrederickFranck/challenge-CV" target="_blank"><img width="35" height="35" src="{{ url_for('static', filename='github_logo_b.png') }}" alt="github_logo"></a>
     </h2>
 </section>
 
