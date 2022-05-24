@@ -47,7 +47,7 @@ def preprocess(img_path: String) -> np.ndarray:
 # Load all images based on dictionary
 def load_images(tagged_dict: Dict) -> Tuple[np.ndarray, np.ndarray]:
     print("STARTED LOADING ...")
-    _dir = config["files"]["dir"]
+    _dir = "data/HAM10000_images/"
     ext = ".jpg"
 
     all_images = []

@@ -116,7 +116,10 @@ def model_create_and_train(
     plot_history(history)
 
     # Saves the model in H5 format for quicker loading
-    model.save(pathlib.Path(__file__).parent / "model/model_h.h5")
+    model.save(pathlib.Path(__file__).parent / "model/model_h.h5",
+               save_format='h5',
+               include_optimizer=False,
+               save_traces=False)
 
     # Calculate Execution Time
     execution_time()
