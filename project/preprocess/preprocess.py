@@ -1,15 +1,13 @@
 from tokenize import String
-from typing import Dict
+from typing import Dict, Tuple
 import toml
 import pathlib
 import pandas as pd
 import numpy as np
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
-
 
 IMAGE_SIZE = (224, 224)
 
@@ -20,10 +18,8 @@ config = toml.load(pathlib.Path(__file__).parent / "../config/config.toml")
 def prepare(datapath: String) -> pd.DataFrame:
     # Load Dataframe
     dataframe = pd.read_csv(datapath)
-
     # Remove duplicates
     dataframe = dataframe.drop_duplicates(subset=["lesion_id"])
-
     # Sort values and sort index
     dataframe = dataframe.sort_values("lesion_id").reset_index(drop=True)
 
@@ -32,8 +28,7 @@ def prepare(datapath: String) -> pd.DataFrame:
 
 # Put all image names in their corresponding classification list
 def class_images(df: pd.DataFrame) -> Dict:
-
-    #Create library of image ids
+    # Create library of image ids
     _dict = df.set_index("image_id").to_dict()["dx"]
 
     return _dict
@@ -49,16 +44,17 @@ def preprocess(img_path: String) -> np.ndarray:
     return img
 
 
-def load_images(tagged_dict):
+# Load all images based on dictionary
+def load_images(tagged_dict: Dict) -> Tuple[np.ndarray, np.ndarray]:
     print("STARTED LOADING ...")
-    _dir = "data/HAM10000_images/"
+    _dir = config["files"]["dir"]
     ext = ".jpg"
 
     all_images = []
     categories = []
 
     for key, value in tagged_dict.items():
-        # load image
+        # load images
         all_images.append(preprocess(_dir + key + ext))
         categories.append(value)
 

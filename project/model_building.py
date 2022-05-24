@@ -2,12 +2,14 @@ import toml
 import pathlib
 import datetime
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import numpy as np
 from matplotlib import pyplot as plt
+from typing import Tuple
+from tensorflow.keras import Sequential
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from model.moddeling import create_model
 from preprocess.preprocess import class_images, load_images, prepare
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
 
 
 # Used to calculate Execution Time
@@ -16,7 +18,6 @@ start = datetime.datetime.now()
 
 
 def plot_history(history):
-
     # This helper function takes the tensorflow.python.keras.callbacks.History
     # that is output from your `fit` method to plot the loss and accuracy of
     # the training and validation set.
@@ -36,37 +37,36 @@ def plot_history(history):
     plt.savefig("Graph.png")
 
 
-def main():
+def main() -> None:
     # Read csv path
     config = toml.load(pathlib.Path(__file__).parent / "config/config.toml")
     datapath = pathlib.Path(__file__).parent / f"../{config['files']['csv']}"
 
-    #Prep data
+    # Prepare data
     df = prepare(datapath)
     _dict = class_images(df)
-    
-    #Load images
-    
+
+    # Load images
     X, y = load_images(_dict)
 
     # Calculate Execution Time
-    end = datetime.datetime.now()
-    print(f"LOADING FINISHED time : {(end - start)}")
+    execution_time()
 
-    #Split data in train
-    train_gen, val_gen, X_test, y_test = split_data(X, y)
-
+    # Split data in train
+    train_gen, val_gen = split_data(X, y)
     model_create_and_train(train_gen, val_gen)
+    load_model()
 
-    load_model(X_test, y_test)
+    return
 
 
-def split_data(X, y):
+def split_data(
+    X: np.ndarray, y: np.ndarray
+) -> Tuple[ImageDataGenerator, ImageDataGenerator]:
     print("DATA SPLITING ...")
     X_train_val, X_test, y_train_val, y_test = train_test_split(
         X, y, test_size=0.2, random_state=58, shuffle=True
     )
-
     X_train, X_val, y_train, y_val = train_test_split(
         X_train_val, y_train_val, test_size=0.2, random_state=58, shuffle=True
     )
@@ -89,19 +89,20 @@ def split_data(X, y):
     validation_generator = validation_datagen.flow(
         X_val, y_val, batch_size=datagen_batch_size
     )
-    end = datetime.datetime.now()
-    print(f"SPLITING DONE time : {(end - start)}")
+    execution_time()
 
-    return train_generator, validation_generator , X_test, y_test
+    return train_generator, validation_generator
 
 
-def model_create_and_train(train_generator, validation_generator):
+# Creates a model , trains it with the image_data generator & saves it
+def model_create_and_train(
+    train_generator: ImageDataGenerator, validation_generator: ImageDataGenerator
+) -> Sequential:
     print("CONSTRUCTING MODEL ...")
     model = create_model()
 
     # Compile and fit the model.
     # Use the validation data argument during fitting to include your validation data.
-
     model.compile(
         optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"]
     )
@@ -111,28 +112,35 @@ def model_create_and_train(train_generator, validation_generator):
     end = datetime.datetime.now()
     print(f"MODEL FINISHED time : {(end - start)}")
 
+    # Plot the acurracy & loss history of the model
     plot_history(history)
 
-    # Calculate Execution Time
-    end = datetime.datetime.now()
-    print(f"Execution time : {(end - start)}")
-
-    model.save(pathlib.Path(__file__).parent / "model/model")
+    # Saves the model in H5 format for quicker loading
     model.save(pathlib.Path(__file__).parent / "model/model_h.h5")
 
+    # Calculate Execution Time
+    execution_time()
 
-def load_model(X_test,y_test):
+    return model
+
+
+# Loading model time test
+def load_model() -> Sequential:
     print("STARTED LOADING ...")
-    model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model")
-    print(model.summary())
-    
-    new_model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model_h.h5")
-    print(new_model.summary())
-    
+    loaded_model = tf.keras.models.load_model(
+        pathlib.Path(__file__).parent / "model/model_h.h5"
+    )
+    print(loaded_model.summary())
+    execution_time()
+    return loaded_model
+
+
+# Prints the execution time
+def execution_time() -> None:
     end = datetime.datetime.now()
     print(f"Execution time : {(end - start)}")
+    return
 
 
 if __name__ == "__main__":
     main()
-    #load_model()
