@@ -42,27 +42,4 @@ App will be running on [localhost](http://localhost:5000/)
 docker run -d -p 5000:5000 mole-doctor
 ```
 
-
-
-# Usage
-
-The main application is a flask app which can be either run locally or in a docker container
-
-### local 
-```bash
-$ python app.py
-```
-
-### Docker
-
-Build the image
-```bash     
-$ docker build . -t immo-deploy
-```
-
-Run a container with the created image
-```bash
-$ docker run -d -p 5000:5000 immo-deploy
-```
-
-Afterwards the app should be running at http://localhost:5000/
+# Work in progress...

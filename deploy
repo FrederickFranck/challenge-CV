@@ -8,3 +8,5 @@ sudo heroku login
 sudo heroku container:login
 sudo heroku container:push web -a mole-doctor
 sudo heroku container:release web -a mole-doctor
+
+heroku logs --tail -a mole-doctor
