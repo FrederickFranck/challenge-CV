@@ -4,6 +4,10 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/index.css') }}">
 
 <section class="content">
+
+    {% for mesg in get_flashed_messages() %}
+      <h4>{{ mesg }}</h4>
+      {% endfor %}
     <header>
 
         <h1>Welcome to the mole doctor<sup>*</sup></h1>

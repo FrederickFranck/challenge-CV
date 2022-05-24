@@ -60,18 +60,18 @@ def route_api():
             p = np.round(pred, 2)
             print(f"{type(p)} : {p}")
 
-        return render_template(
-            "index.html",
-            user_image=f"uploads/{filename}",
-            predictions=p[0],
-            classes=CLASSES,
-        )
+            return render_template(
+                "index.html",
+                user_image=f"uploads/{filename}",
+                predictions=p[0],
+                classes=CLASSES,
+            )
+        else:
+            flash("File extension not allowed ")
+            return render_template("index.html")
 
 
 if __name__ == "__main__":
-    # You want to put the value of the env variable PORT if it exist (some services only open specifiques ports)
-    port = int(os.environ.get("PORT", 5000))
-    # Threaded option to enable multiple instances for
-    # multiple user access support
-    # You will also define the host to "0.0.0.0" because localhost will only be reachable from inside de server.
-    app.run(host="0.0.0.0", threaded=True, port=port, debug=True)
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.run(host="0.0.0.0", threaded=True)
