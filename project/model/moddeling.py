@@ -1,4 +1,3 @@
-# Import your chosen model!
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense

@@ -1,9 +1,6 @@
-FROM ubuntu:latest
-RUN apt-get update -y
-RUN apt-get install -y python3-pip python-is-python3 build-essential
+FROM python:3.8-slim-buster
+COPY ./project/docker_requirements.txt /
+RUN pip install --no-cache-dir -r docker_requirements.txt
 COPY ./project /project
 WORKDIR /project
-RUN pip install -r requirements.txt
-RUN python model_building.py
-ENTRYPOINT ["python"]
-CMD ["app.py"]
+CMD ["python", "app.py"]

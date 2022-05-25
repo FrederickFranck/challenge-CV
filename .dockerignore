@@ -1,0 +1,5 @@
+/project/config
+/project/preprocess
+/project/model/__pycache__
+/project/model/model
+/project/model/moddeling.py
