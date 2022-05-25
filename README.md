@@ -50,4 +50,3 @@ You should see the mole doctor if the application is running correctly
 
 ![example](./img/mole-doctor.png)
 
-# Work in progress...
