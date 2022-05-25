@@ -10,9 +10,9 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 
 ALLOWED_EXTENSIONS = set(["png", "jpg", "jpeg", "gif"])
-UPLOAD_FOLDER = pathlib.Path(__file__).parent / "static/uploads"
+UPLOAD_FOLDER = pathlib.Path(__file__).parent / "static/uploads/"
 CLASSES = ["nv", "bkl", "mel", "akiec", "bcc", "df", "vasc"]
-
+print(UPLOAD_FOLDER)
 # Load saved model
 model = tf.keras.models.load_model(pathlib.Path(__file__).parent / "model/model_h.h5")
 
